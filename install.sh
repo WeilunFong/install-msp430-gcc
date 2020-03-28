@@ -37,18 +37,6 @@ Written by Weilun Fong <wlf@zhishan-iot.tk>"
 url="https://raw.githubusercontent.com/WeilunFong/install-msp430-gcc/master/lastest-link.txt"
 # ------------------------------------------------------------------------
 
-# Get download link
-for((i=1;i<=3;i++));
-do
-    downloadLink="`wget -q -O - $url`"
-    if [ -n "$downloadLink" ]; then
-        break
-    fi
-done
-if [ -z "$downloadLink" ]; then
-    echo "$0: failed to get download link online" >&2 && exit 1
-fi
-downloadFile="`echo $downloadLink |  awk -F '/' '{print $NF}' | awk -F '?' '{print $1}'`"
 
 # Get parameters
 while test $# -gt 0 ; do
@@ -103,27 +91,46 @@ if [ ! -w "$installPrefix" ]; then
 fi
 
 # Installation
-echo " - Start to install"
+echo " - Start!"
 if [ "$installMode" == bin ]; then
     if [ "$installAction" == install ]; then
-
-        mkdir -p $installPrefix/ti/msp430-gcc-8
+        # check target path
+        if [ -d $installPrefix/ti/msp430-gcc ]; then
+            echo "$0: installation directory conflicts, please rename or move $installPrefix/ti/msp430-gcc \
+        firstly" >&2 && exit 1
+        fi
+        # get download link
+        for((i=1;i<=3;i++));
+        do
+            downloadLink="`wget -q -O - $url`"
+            if [ -n "$downloadLink" ]; then
+                break
+            fi
+        done
+        wait
+        if [ -z "$downloadLink" ]; then
+            echo "$0: failed to get download link online" >&2 && exit 1
+        fi
+        downloadFile="`echo $downloadLink |  awk -F '/' '{print $NF}' | awk -F '?' '{print $1}'`"
+        # start to install
+        mkdir -p $installPrefix/ti
         cd $installPrefix/ti
 
         echo " - Download binary file"
-        wget $downloadLink -O $downloadFile && tar -jxf $ downloadFile
-        mv `basename $downloadFile .tar.bz2` msp430-gcc-8
+        wget $downloadLink -O $downloadFile && tar -jxf $downloadFile
+        mv `basename $downloadFile .tar.bz2` msp430-gcc
 
         echo " - Do final works"
         rm -f $downloadFile
+        echo "  Please add path $installPrefix/ti/msp430-gcc/bin into environment variable \
+\$PATH before using manually"
     elif [ "$installAction" == uninstall ]; then
         echo " - Remove msp430-gcc..."
-        sudo rm -rf $prefix/ti/msp430-gcc-8
+        sudo rm -rf $installPrefix/ti/msp430-gcc
     fi
 elif [ "$installMode" == src ]; then
     echo "$0: unspported now..." >&2 && exit 2
 fi
     
 # Done!
-echo " - Done! Please add path $installPrefix/ti/msp430-gcc-8/bin into environment variable \
-\$PATH before using manually"
+echo " - Done!"
