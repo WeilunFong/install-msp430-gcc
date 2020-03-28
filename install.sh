@@ -34,7 +34,7 @@ Written by Weilun Fong <wlf@zhishan-iot.tk>"
 # ------------------------------------------------------------------------
 # DOWNLOAD LINK DEFINE, USER CAN MODIFY IT MANUALLY
 # ------------------------------------------------------------------------
-url="https://raw.githubusercontent.com/WeilunFong/install-msp430-gcc/lastest-link.txt"
+url="https://raw.githubusercontent.com/WeilunFong/install-msp430-gcc/master/lastest-link.txt"
 # ------------------------------------------------------------------------
 
 # Get download link
