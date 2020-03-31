@@ -4,8 +4,12 @@
 # Author     : Weilun Fong | wlf@zhishan-iot.tk
 # Date       : 2020-03-28
 # Description: install msp430gcc
-# E-mail     : wlf@zhishan-iot.tk
+# E-mail     : mcu@zhishan-iot.tk
+# Page       : https://github.com/WeilunFong/install-msp430gcc
+# Project    : install-msp430gcc
+# Version    :
 # ------------------------------------------------------------------------
+
 
 # Script information
 SCRIPT_HELP="Try '$0' --help for more information."
@@ -129,7 +133,7 @@ if [ "$installMode" == bin ]; then
         sudo rm -rf $installPrefix/ti/msp430-gcc
     fi
 elif [ "$installMode" == src ]; then
-    echo "$0: unspported now..." >&2 && exit 2
+    echo "$0: not spported now..." >&2 && exit 2
 fi
     
 # Done!
