@@ -15,7 +15,7 @@ timestamp=20200331
 
 # Script print
 script="env.sh"
-help="Try 'source $script --help' for more information."
+help="Try lanuching a new bash and enter 'source $script --help' for more information."
 usage="\
 Usage: source $script -c [msp430gcc-path] <-d [debug-tool-path]>
 
@@ -101,6 +101,9 @@ export OBJCOPY=${CROSS_COMPILE}objcopy
 export OBJDUMP=${CROSS_COMPILE}objdump
 export RANLIB=${CROSS_COMPILE}ranlib
 export STRIP=${CROSS_COMPILE}strip
+
+export CFLAGS="-I${SYSROOT}/include"
+export LDFLAGS="-L${SYSROOT}/include"
 
 # ------------------------------------------------------------------------
 # mspdebug path

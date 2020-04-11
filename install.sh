@@ -2,7 +2,7 @@
 
 # ------------------------------------------------------------------------
 # Author     : Weilun Fong | wlf@zhishan-iot.tk
-# Date       : 2020-03-28
+# Date       : 2020-04-11
 # Description: install msp430gcc
 # E-mail     : mcu@zhishan-iot.tk
 # Page       : https://github.com/WeilunFong/install-msp430gcc
@@ -18,12 +18,12 @@ Usage: $0 [--mode <mode>] [--action <action>]
 
 Options:
     -a, --action <action>    value of <action> must be 'install' or 'uninstall', default one is
-'install'
+'install'. Uninstall operation will remove directory <prefix>/ti/msp430-gcc
     -m, --mode <mode>        value of <mode> must be 'bin'(install via binary package) or 'src'
 (install via source code). If you select latter, the script will install newer version. Default
 one is 'src'. Default mode is 'bin' and this mode only for amd64 host!!!
     -p, --prefix <path>      specify target install path, default value is /opt and msp430-gcc 
-will be installed under path /opt/ti
+will be installed under path /opt/ti.
 
     -h, --help               print help informatio, then exit
     -v, --version            print version information, then exit
@@ -83,26 +83,32 @@ else
     fi
 fi
 
-if [ -z "$installPrefix" ]; then
-    installPrefix=/opt
-else
-    if [ ! -d "$installPrefix" ]; then
-        echo "$0: no such directory $installPrefix" >&2 && exit 1
+if [ "$installAction" == install ];then
+    if [ "$installMode" == src ]; then
+        if [ -z "$installPrefix" ]; then
+            installPrefix=/opt
+        fi
+        if [ ! -d $installPrefix ]; then
+            echo "$0: no such directory $installPrefix" >&2 && exit 1
+        fi
+        if [ ! -w "$installPrefix" ]; then
+            echo "$0: current user [$USER] have no rights to do write operations for $installPrefix" >&2 && exit 1
+        fi
     fi
-fi
-if [ ! -w "$installPrefix" ]; then
-    echo "$0: current user [$USER] have no rights to do write operations for $installPrefix" >&2 && exit 1
+elif [ "$installAction" == uninstall ]; then
+    if [ -z "$installPrefix" ]; then
+        echo "$0: <prefix> parameter is required when you do uninstall operation" >&2 && exit 1
+    else
+        if [ ! -d "$installPrefix" ]; then
+            echo "$0: no such directory $installPrefix" >&2 && exit 1
+        fi
+    fi
 fi
 
 # Installation
 echo " - Start!"
 if [ "$installMode" == bin ]; then
     if [ "$installAction" == install ]; then
-        # check target path
-        if [ -d $installPrefix/ti/msp430-gcc ]; then
-            echo "$0: installation directory conflicts, please rename or move $installPrefix/ti/msp430-gcc \
-        firstly" >&2 && exit 1
-        fi
         # get download link
         for((i=1;i<=3;i++));
         do
@@ -117,20 +123,20 @@ if [ "$installMode" == bin ]; then
         fi
         downloadFile="`echo $downloadLink |  awk -F '/' '{print $NF}' | awk -F '?' '{print $1}'`"
         # start to install
-        mkdir -p $installPrefix/ti
-        cd $installPrefix/ti
-
         echo " - Download binary file"
-        wget $downloadLink -O $downloadFile && tar -jxf $downloadFile
-        mv `basename $downloadFile .tar.bz2` msp430-gcc
-
+        wget $downloadLink
+        chmod +x $downloadFile
+        ./$downloadFile
         echo " - Do final works"
         rm -f $downloadFile
-        echo "  Please add path $installPrefix/ti/msp430-gcc/bin into environment variable \
-\$PATH before using manually"
     elif [ "$installAction" == uninstall ]; then
         echo " - Remove msp430-gcc..."
-        sudo rm -rf $installPrefix/ti/msp430-gcc
+        u=$installPrefix/ti/msp430-gcc/uninstall
+        if [ ! -f $u ]; then
+            echo "$0: uninstall file $u not found..." >&2 && exit 2
+        else
+            $u
+        fi
     fi
 elif [ "$installMode" == src ]; then
     echo "$0: not spported now..." >&2 && exit 2
